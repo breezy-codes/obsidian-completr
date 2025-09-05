@@ -1,13 +1,15 @@
 name: Build and release
 
+
 on:
   push:
-    tags:
-      - "*" # Push events to matching any tag format, i.e. 1.0, 20.15.10
+    branches:
+      - main
 
 env:
   PLUGIN_NAME: obsidian-completr
 
+  
 jobs:
   build:
     runs-on: ubuntu-latest
