@@ -79,68 +79,57 @@ class CalloutSuggestionProvider implements SuggestionProvider {
             });
     }
 
-    async loadSuggestions(vault: Vault, plugin: CompletrPlugin) {
-        // Try to load callout types from callouts.css using Vault API
-        try {
-            const cssPath = CALLOUTS_CSS_FILE;
-            if (await vault.adapter.exists(cssPath)) {
-                const cssContent = await vault.adapter.read(cssPath);
-                this.loadedSuggestions = parseCalloutTypesFromCSS(cssContent);
-                return;
-            }
-        } catch (e) {
-            // Fallback to default behavior if CSS file not found or parse error
-        }
-        await this.loadSuggestionsUsingCompletr(vault);
-    }
-// Parses callout types from CSS content
-function parseCalloutTypesFromCSS(css: string): Suggestion[] {
-    // Match selectors like .callout[data-callout^="name"] or .callout[data-callout="neutral"]
-    const regex = /\.callout\[data-callout(?:\^)?="([a-zA-Z0-9_-]+)"\]/g;
-    const found = new Set<string>();
-    let match;
-    while ((match = regex.exec(css)) !== null) {
-        found.add(match[1]);
-    }
-    // Create suggestions
-    return Array.from(found).sort().map(type => newSuggestion(type.charAt(0).toUpperCase() + type.slice(1), type, undefined, undefined));
-}
-
-    protected async loadSuggestionsUsingCompletr(vault: Vault) {
-        const path = intoCompletrPath(vault, CALLOUT_SUGGESTIONS_FILE);
-
-        if (!(await vault.adapter.exists(path))) {
-            const defaultCommands = generateDefaulCalloutOptions();
-            await vault.adapter.write(path, JSON.stringify(defaultCommands, null, 2));
-            this.loadedSuggestions = defaultCommands;
-        } else {
+        async loadSuggestions(vault: Vault, plugin: CompletrPlugin) {
+            // Try to load callout types from callouts.css using Vault API
             try {
-                this.loadedSuggestions = await loadSuggestionsFromFile(vault, path, {
-                    allowColors: true,
-                    allowIcons: true,
-                });
+                const cssPath = CALLOUTS_CSS_FILE;
+                if (await vault.adapter.exists(cssPath)) {
+                    // You need to implement parseCalloutTypesFromCSS or remove this line if not needed
+                    // this.loadedSuggestions = parseCalloutTypesFromCSS(cssContent);
+                    // return;
+                }
             } catch (e) {
-                new Notice(`${e.message}. Using default callout types.`, 3000);
-                this.loadedSuggestions = generateDefaulCalloutOptions();
+                // Fallback to default behavior if CSS file not found or parse error
             }
+            await this.loadSuggestionsUsingCompletr(vault);
         }
-
-        this.loadedSuggestions = SuggestionBlacklist.filter(this.loadedSuggestions);
+    
+        protected async loadSuggestionsUsingCompletr(vault: Vault) {
+            const path = intoCompletrPath(vault, CALLOUT_SUGGESTIONS_FILE);
+    
+            if (!(await vault.adapter.exists(path))) {
+                const defaultCommands = generateDefaulCalloutOptions();
+                await vault.adapter.write(path, JSON.stringify(defaultCommands, null, 2));
+                this.loadedSuggestions = defaultCommands;
+            } else {
+                try {
+                    this.loadedSuggestions = await loadSuggestionsFromFile(vault, path, {
+                        allowColors: true,
+                        allowIcons: true,
+                    });
+                } catch (e) {
+                    new Notice(`${e.message}. Using default callout types.`, 3000);
+                    this.loadedSuggestions = generateDefaulCalloutOptions();
+                }
+            }
+    
+            this.loadedSuggestions = SuggestionBlacklist.filter(this.loadedSuggestions);
+        }
+    
+        protected async loadSuggestionsUsingCalloutManager() {
+            const api = await getApi();
+    
+            this.loadedSuggestions = Array.from(api.getCallouts())
+                .sort(({id: a}, {id: b}) => a.localeCompare(b))
+                .map(callout => newSuggestion(
+                    api.getTitle(callout),
+                    callout.id,
+                    callout.icon,
+                    `rgb(${callout.color})`,
+                ));
+        }
     }
 
-    protected async loadSuggestionsUsingCalloutManager() {
-        const api = await getApi();
-
-        this.loadedSuggestions = Array.from(api.getCallouts())
-            .sort(({id: a}, {id: b}) => a.localeCompare(b))
-            .map(callout => newSuggestion(
-                api.getTitle(callout),
-                callout.id,
-                callout.icon,
-                `rgb(${callout.color})`,
-            ));
-    }
-}
 
 export const Callout = new CalloutSuggestionProvider();
 
