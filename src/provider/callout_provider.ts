@@ -1,4 +1,5 @@
 import { getApi } from "obsidian-callout-manager";
+import { readFileSync } from "fs";
 import { Suggestion, SuggestionContext, SuggestionProvider } from "./provider";
 import { CalloutProviderSource, CompletrSettings, intoCompletrPath } from "../settings";
 import { Notice, Vault } from "obsidian";
@@ -6,6 +7,7 @@ import { SuggestionBlacklist } from "./blacklist";
 import CompletrPlugin from "src/main";
 
 const CALLOUT_SUGGESTIONS_FILE = "callout_suggestions.json";
+const CALLOUTS_CSS_FILE = "callouts.css";
 
 const BLOCKQUOTE_PREFIX_REGEX = /^(?:[ \t]*>[ \t]*)+/;
 const CALLOUT_HEADER_REGEX = /^(\[!?([^\]]*)\])([+-]?)([ \t]*)(.*)$/d; // [!TYPE]- TITLE
@@ -78,22 +80,31 @@ class CalloutSuggestionProvider implements SuggestionProvider {
     }
 
     async loadSuggestions(vault: Vault, plugin: CompletrPlugin) {
-        const source = plugin.settings.calloutProviderSource;
-
-        // Callout Manager
-        const calloutManagerApi = await getApi(plugin);
-        if (calloutManagerApi != null) {
-            calloutManagerApi.off('change', this.boundLoadSuggestionsUsingCalloutManager);
-            if (source === CalloutProviderSource.CALLOUT_MANAGER) {
-                calloutManagerApi.on('change', this.boundLoadSuggestionsUsingCalloutManager);
-                await this.loadSuggestionsUsingCalloutManager();
+        // Try to load callout types from callouts.css using Vault API
+        try {
+            const cssPath = CALLOUTS_CSS_FILE;
+            if (await vault.adapter.exists(cssPath)) {
+                const cssContent = await vault.adapter.read(cssPath);
+                this.loadedSuggestions = parseCalloutTypesFromCSS(cssContent);
                 return;
             }
+        } catch (e) {
+            // Fallback to default behavior if CSS file not found or parse error
         }
-
-        // Completr.
         await this.loadSuggestionsUsingCompletr(vault);
     }
+// Parses callout types from CSS content
+function parseCalloutTypesFromCSS(css: string): Suggestion[] {
+    // Match selectors like .callout[data-callout^="name"] or .callout[data-callout="neutral"]
+    const regex = /\.callout\[data-callout(?:\^)?="([a-zA-Z0-9_-]+)"\]/g;
+    const found = new Set<string>();
+    let match;
+    while ((match = regex.exec(css)) !== null) {
+        found.add(match[1]);
+    }
+    // Create suggestions
+    return Array.from(found).sort().map(type => newSuggestion(type.charAt(0).toUpperCase() + type.slice(1), type, undefined, undefined));
+}
 
     protected async loadSuggestionsUsingCompletr(vault: Vault) {
         const path = intoCompletrPath(vault, CALLOUT_SUGGESTIONS_FILE);
