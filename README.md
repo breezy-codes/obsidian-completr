@@ -1,9 +1,21 @@
 # Completr
 
-[![](https://img.shields.io/github/v/release/tth05/obsidian-completr?style=flat-square)](https://github.com/tth05/obsidian-completr/releases)
-![](https://img.shields.io/github/downloads/tth05/obsidian-completr/total?style=flat-square)
+[![](https://img.shields.io/github/v/release/breezy-codes/obsidian-completr?style=flat-square)](https://github.com/tth05/obsidian-completr/releases)
+![](https://img.shields.io/github/downloads/breezy-codes/obsidian-completr/total?style=flat-square)
 
 This plugin provides advanced auto-completion functionality for obsidian. Legacy editor not supported.
+
+## Fork-specific Features by @breezy-codes
+
+This repository is a fork of the original project. In this version, the callout options have been customized. If you wish to use a personalized set of callouts based on your own CSS file, refer to the instructions in `updatecallouts.py` for guidance on updating and applying your custom styles.
+
+After updating your callouts, you must also modify the `manifest.json` file to ensure it points to your own fork repository. Once all changes are made, commit them to your repository. To create a new release, run:
+
+```sh
+git tag v1.0.0 && git push origin v1.0.0
+```
+
+This will tag your release and push it to your fork on GitHub. Then follow the manual install steps below to get your forked version into Obsidian.
 
 ## Features
 

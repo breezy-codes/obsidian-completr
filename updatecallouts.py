@@ -1,3 +1,15 @@
+"""
+Script to parse callouts from callouts.css and generate the TypeScript function for default callout options.
+
+This can be used to modify the callouts offered by the plugin based on a custom CSS file.
+
+Simply paste your custom.css file into the main project directory as callouts.css and run this script from the command line with `python updatecallouts.py`.
+
+Take the output of the function and replace the function at the very end of the file called `callout_provider.ts` which is in the `src/provider` directory.
+"""
+
+
+
 import re
 
 # Map RGB variable names to hex codes
