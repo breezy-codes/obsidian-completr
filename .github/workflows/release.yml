@@ -3,11 +3,12 @@ name: Build and release
 on:
   push:
     tags:
-      - "*" # Push events to matching any tag format, i.e. 1.0, 20.15.10
+      - "*" # When I want a new release, do git tag v1.0.0 && git push origin v1.0.0 but a new version each time
 
 env:
   PLUGIN_NAME: obsidian-completr
 
+  
 jobs:
   build:
     runs-on: ubuntu-latest
