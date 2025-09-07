@@ -7,15 +7,47 @@ This plugin provides advanced auto-completion functionality for obsidian. Legacy
 
 ## Fork-specific Features by @breezy-codes
 
-This repository is a fork of the original project. In this version, the callout options have been customized. If you wish to use a personalized set of callouts based on your own CSS file, refer to the instructions in `updatecallouts.py` for guidance on updating and applying your custom styles.
+This repository is a fork of the original Completr project, with enhanced support for custom callout options. You can personalize the callout styles to match your own CSS preferences, allowing for a more tailored experience in Obsidian.
 
-After updating your callouts, you must also modify the `manifest.json` file to ensure it points to your own fork repository. Once all changes are made, commit them to your repository. To create a new release, run:
+### How to Customize Callouts
 
-```sh
-git tag v1.0.0 && git push origin v1.0.0
-```
+1. **Edit Your CSS File**  
+  Prepare your custom callout styles in a CSS file. This file should define the appearance and behavior of your callouts.
 
-This will tag your release and push it to your fork on GitHub. Then follow the manual install steps below to get your forked version into Obsidian.
+2. **Update Callouts Using `updatecallouts.py`**  
+  Use the provided `updatecallouts.py` script to apply your custom styles. The script reads your CSS file and updates the plugin's callout configuration accordingly.  
+  - Refer to the comments and instructions within `updatecallouts.py` for details on usage and required file paths.
+
+3. **Modify `manifest.json`**  
+  After updating your callouts, open the `manifest.json` file and ensure the repository URL and other metadata point to your fork. This helps users and Obsidian identify your customized version.
+
+4. **Commit Your Changes**  
+  Stage and commit all modified files to your repository:
+  ```sh
+  git add .
+  git commit -m "Update callouts and manifest for custom fork"
+  ```
+
+5. **Tag and Release Your Fork**  
+  Create a new release by tagging your commit and pushing the tag to GitHub:
+  ```sh
+  git tag v1.0.0
+  git push origin v1.0.0
+  ```
+  Adjust the version number as needed for subsequent releases.
+
+6. **Manual Installation in Obsidian**  
+  Follow the manual installation steps described below to install your forked plugin in Obsidian:
+  - Download the updated `main.js`, `styles.css`, and `manifest.json` from your release.
+  - Copy these files into your vault's `.obsidian/plugins/obsidian-completr/` directory.
+
+### Notes
+
+- Custom callouts allow you to visually distinguish important information, warnings, tips, and more within your notes.
+- If you encounter issues with callout rendering, double-check your CSS syntax and ensure the plugin is enabled in Obsidian.
+- For advanced customization, you may further modify the plugin code or contribute improvements via pull requests.
+
+By following these steps, you can maintain a personalized version of Completr with your own callout styles and easily distribute updates through GitHub releases.
 
 ## Features
 
